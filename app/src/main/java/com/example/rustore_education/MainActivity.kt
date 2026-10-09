@@ -1,47 +1,52 @@
 package com.example.rustore_education
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.rustore_education.ui.theme.Rustore_EducationTheme
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
+        setContentView(R.layout.activity_main)
 
-            Rustore_EducationTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
+        val editText = findViewById<EditText>(R.id.editText)
+
+        findViewById<Button>(R.id.btnOpen).setOnClickListener {
+            val text = editText.text.toString()
+            if (text.isBlank()) {
+                toast("Введите текст")
+            } else {
+                startActivity(Intent(this, SecondActivity::class.java).putExtra("text", text))
+            }
+        }
+
+        findViewById<Button>(R.id.btnCall).setOnClickListener {
+            val phoneName = editText.text.toString().trim()
+            if (!phoneName.matches(Regex("^(\\+7|8)[0-9]{10}$"))) {
+                toast("Введите номер в формате +79991234567 или 89991234567")
+            } else {
+                startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneName")))
+            }
+        }
+
+        findViewById<Button>(R.id.btnShare).setOnClickListener {
+            val text = editText.text.toString()
+            if (text.isBlank()) {
+                toast("Введите текст")
+            } else {
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, text)
                 }
+                startActivity(Intent.createChooser(intent, "Поделиться через..."))
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Rustore_EducationTheme {
-        Greeting("Android")
-    }
+    private fun toast(msg: String) =
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 }
